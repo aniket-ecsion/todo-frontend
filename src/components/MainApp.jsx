@@ -3,6 +3,8 @@ import { Button, Form } from "react-bootstrap";
 import AllTask from "./AllTask";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
+
 const MainApp = () => {
   const [task, setTask] = useState({
     id: localStorage.getItem("id"),
@@ -18,13 +20,11 @@ const MainApp = () => {
     setTask({ ...task, id: localStorage.getItem("id") });
   }, []);
 
-  const handleUpdate = async (id) => {
-    try {
-    } catch (error) {}
-  };
   const getTask = async () => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/task/${task.id}`);
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/api/task/${task.id}`
+      );
       setData(res.data);
     } catch (error) {
       console.log(error);
@@ -33,8 +33,11 @@ const MainApp = () => {
 
   const addValue = async () => {
     try {
-      const res = await axios.post("http://localhost:4000/api/task", task);
-      alert(res);
+      const res = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/api/task`,
+        task
+      );
+      toast.success("Task Added!");
       setData(res.data.data);
     } catch (error) {
       console.log(error);
@@ -43,7 +46,9 @@ const MainApp = () => {
 
   const getEditVale = async (id) => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/task/edit/${id}`);
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/api/task/edit/${id}`
+      );
       SetHoldEdit(res.data);
       setTask({ ...task, task: res.data.task });
     } catch (error) {
@@ -54,13 +59,13 @@ const MainApp = () => {
   const updateValue = async () => {
     try {
       const res = await axios.patch(
-        `http://localhost:4000/api/task/${holdEdit._id}`,
-         task
+        `${process.env.REACT_APP_BASE_URL}/api/task/${holdEdit._id}`,
+        task
       );
       setData(res.data);
-      alert(res);
+      toast.success("Task Updated!");
     } catch (error) {
-      console.log(error);
+      toast.error(error);
     }
   };
 
@@ -76,11 +81,11 @@ const MainApp = () => {
     if (add) {
       addValue();
       getTask();
-      setTask({ task: "" });
+      setTask({ ...task, task: "" });
     } else {
       updateValue();
       setAdd(true);
-      setTask({ task: "" });
+      setTask({ ...task, task: "" });
     }
   };
   const handleLogOut = () => {
@@ -88,8 +93,8 @@ const MainApp = () => {
     navigate("/login");
   };
   return (
-    <div className="row justify-content-center">
-      <div className="col-6">
+    <div className="row justify-content-center py-4">
+      <div className="col-sm-6 col-12">
         <Form onSubmit={handleSubmit}>
           <div className="d-flex justify-content-between">
             <h4>Welcome {username}</h4>
@@ -103,6 +108,7 @@ const MainApp = () => {
               onChange={handleChange}
               name="task"
               value={task.task}
+              required
             />
           </Form.Group>
           <Button variant="primary" type="submit">
